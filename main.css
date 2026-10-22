@@ -1,0 +1,577 @@
+/* ==========================================================================
+   CYBER-STRIKE: TRANSFORMERS 3D - CYBERPUNK CS HUD & STYLING
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #06090e;
+    font-family: 'Rajdhani', sans-serif;
+    color: #ffffff;
+}
+
+#game-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    cursor: crosshair;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   HUD OVERLAY CONTAINER
+   -------------------------------------------------------------------------- */
+#hud {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 24px 32px;
+}
+
+/* --------------------------------------------------------------------------
+   TOP BAR: RADAR, TIMER, MONEY & KILLFEED
+   -------------------------------------------------------------------------- */
+.hud-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+}
+
+/* Radar */
+.radar-box {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 240, 255, 0.4);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.25), inset 0 0 15px rgba(0, 240, 255, 0.15);
+    background: rgba(10, 16, 26, 0.7);
+    backdrop-filter: blur(4px);
+    overflow: hidden;
+}
+
+#radar-canvas {
+    width: 100%;
+    height: 100%;
+}
+
+.radar-label {
+    position: absolute;
+    bottom: 8px;
+    width: 100%;
+    text-align: center;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #00f0ff;
+    text-shadow: 0 0 5px #00f0ff;
+}
+
+/* CS Center Top Match Header */
+.match-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(180deg, rgba(14, 23, 38, 0.95), rgba(10, 14, 22, 0.8));
+    padding: 10px 28px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+.timer-box {
+    font-family: 'Orbitron', monospace;
+    font-size: 32px;
+    font-weight: 900;
+    color: #ffcc00;
+    text-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+    letter-spacing: 2px;
+}
+
+.match-subinfo {
+    display: flex;
+    gap: 20px;
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+#hud-wave {
+    color: #00f0ff;
+}
+
+#hud-remaining {
+    color: #ff3344;
+}
+
+#hud-money {
+    color: #00ff66;
+    font-family: 'Orbitron', monospace;
+    text-shadow: 0 0 8px rgba(0, 255, 102, 0.5);
+}
+
+/* Killfeed */
+#kill-feed {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    min-width: 280px;
+}
+
+.kill-item {
+    background: rgba(12, 18, 28, 0.85);
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    animation: slideIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    transition: opacity 0.4s ease;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* --------------------------------------------------------------------------
+   CENTER: CROSSHAIR & HITMARKER
+   -------------------------------------------------------------------------- */
+#crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 28px;
+    height: 28px;
+    pointer-events: none;
+    transition: width 0.1s, height 0.1s;
+}
+
+#crosshair .ch-line {
+    position: absolute;
+    background-color: #00ff66;
+    box-shadow: 0 0 6px #00ff66;
+}
+
+#crosshair .top {
+    top: 0; left: 13px; width: 2px; height: 8px;
+}
+#crosshair .bottom {
+    bottom: 0; left: 13px; width: 2px; height: 8px;
+}
+#crosshair .left {
+    top: 13px; left: 0; width: 8px; height: 2px;
+}
+#crosshair .right {
+    top: 13px; right: 0; width: 8px; height: 2px;
+}
+#crosshair .dot {
+    top: 13px; left: 13px; width: 2px; height: 2px;
+    background-color: #ffffff;
+}
+
+#crosshair.firing {
+    width: 44px;
+    height: 44px;
+}
+#crosshair.firing .ch-line {
+    background-color: #ff3344;
+    box-shadow: 0 0 8px #ff3344;
+}
+
+/* Hitmarker (CS style X mark) */
+#hitmarker {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 22px;
+    height: 22px;
+    transform: translate(-50%, -50%) rotate(45deg);
+    border: 3px solid #00f0ff;
+    border-radius: 2px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.05s ease;
+}
+
+/* Sniper Scope Overlay */
+#sniper-scope {
+    position: absolute;
+    inset: 0;
+    display: none;
+    pointer-events: none;
+    background: radial-gradient(circle at center, transparent 38%, rgba(0, 0, 0, 0.96) 52%);
+    z-index: 10;
+}
+
+.scope-line-h {
+    position: absolute;
+    top: 50%; left: 0; width: 100%; height: 1.5px;
+    background: rgba(0, 240, 255, 0.7);
+    box-shadow: 0 0 6px #00f0ff;
+}
+.scope-line-v {
+    position: absolute;
+    left: 50%; top: 0; height: 100%; width: 1.5px;
+    background: rgba(0, 240, 255, 0.7);
+    box-shadow: 0 0 6px #00f0ff;
+}
+.scope-ring {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 240px; height: 240px;
+    border: 1px dashed rgba(0, 240, 255, 0.4);
+    border-radius: 50%;
+}
+
+/* --------------------------------------------------------------------------
+   BOTTOM BAR: HEALTH, MODE SELECTOR & AMMO
+   -------------------------------------------------------------------------- */
+.hud-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 100%;
+}
+
+/* Classic CS Health & Armor */
+.cs-stats-card {
+    display: flex;
+    gap: 16px;
+    background: linear-gradient(135deg, rgba(14, 20, 32, 0.9), rgba(8, 12, 18, 0.85));
+    padding: 14px 22px;
+    border-radius: 8px;
+    border-left: 4px solid #00f0ff;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.6);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #88a0b8;
+    text-transform: uppercase;
+}
+
+.stat-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 34px;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.stat-bar-bg {
+    width: 110px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+#hp-bar {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #ff0055, #00ff66);
+    transition: width 0.2s ease;
+}
+
+/* Middle Mode & Transformer controls */
+.transformer-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+#mode-badge {
+    font-family: 'Orbitron', monospace;
+    font-size: 14px;
+    font-weight: 900;
+    padding: 8px 24px;
+    border-radius: 20px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+    transition: all 0.3s ease;
+}
+
+.mode-robot {
+    background: rgba(0, 102, 204, 0.6);
+    border: 1px solid #00f0ff;
+    color: #00f0ff;
+}
+
+.mode-car {
+    background: rgba(255, 85, 0, 0.6);
+    border: 1px solid #ffaa00;
+    color: #ffaa00;
+    box-shadow: 0 0 20px rgba(255, 170, 0, 0.5) !important;
+}
+
+.transform-hint {
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffcc00;
+    letter-spacing: 1px;
+    background: rgba(0,0,0,0.6);
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: 1px dashed rgba(255, 204, 0, 0.5);
+}
+
+/* Nitro Boost Bar */
+#nitro-container {
+    display: none;
+    width: 180px;
+    text-align: center;
+}
+.nitro-label {
+    font-size: 11px;
+    font-weight: 900;
+    color: #00f0ff;
+    letter-spacing: 1.5px;
+    margin-bottom: 3px;
+}
+.nitro-bar-bg {
+    width: 100%;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 4px;
+    border: 1px solid rgba(0, 240, 255, 0.5);
+    overflow: hidden;
+}
+#nitro-bar {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #0088ff, #00f0ff);
+    box-shadow: 0 0 10px #00f0ff;
+}
+
+/* Ammo & Weapon Display */
+.cs-weapon-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    background: linear-gradient(225deg, rgba(14, 20, 32, 0.9), rgba(8, 12, 18, 0.85));
+    padding: 14px 24px;
+    border-radius: 8px;
+    border-right: 4px solid #ffcc00;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.6);
+}
+
+#weapon-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffcc00;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+}
+
+#hud-ammo {
+    font-family: 'Orbitron', monospace;
+    font-size: 38px;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 0 12px rgba(255, 204, 0, 0.5);
+}
+
+.weapon-slots-hint {
+    font-size: 12px;
+    color: #8899aa;
+    margin-top: 4px;
+    letter-spacing: 1px;
+}
+
+/* --------------------------------------------------------------------------
+   DAMAGE INDICATOR & FLASH
+   -------------------------------------------------------------------------- */
+#damage-indicator {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 100px rgba(255, 0, 0, 0.85);
+    opacity: 0;
+    transition: opacity 0.1s ease;
+    z-index: 5;
+}
+
+#transform-flash {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: #00f0ff;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    z-index: 6;
+}
+#transform-flash.active {
+    opacity: 0.6;
+}
+
+/* --------------------------------------------------------------------------
+   MODALS: START SCREEN, SCOREBOARD, GAME OVER, VICTORY
+   -------------------------------------------------------------------------- */
+.modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(6, 10, 18, 0.88);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+}
+
+.modal-content {
+    background: linear-gradient(180deg, #121c2d 0%, #0a101b 100%);
+    border: 2px solid #00f0ff;
+    border-radius: 12px;
+    padding: 36px 48px;
+    max-width: 650px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(0, 240, 255, 0.3);
+}
+
+.title-glow {
+    font-family: 'Orbitron', monospace;
+    font-size: 32px;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 0 15px #00f0ff;
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+}
+
+.subtitle {
+    font-size: 16px;
+    color: #8fa6c4;
+    margin-bottom: 24px;
+    letter-spacing: 1px;
+}
+
+.controls-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    text-align: left;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 18px 24px;
+    border-radius: 8px;
+    margin-bottom: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ctrl-row {
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.key-badge {
+    background: #00f0ff;
+    color: #06090e;
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    min-width: 24px;
+    text-align: center;
+}
+
+.action-btn {
+    font-family: 'Orbitron', monospace;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #06090e;
+    background: linear-gradient(90deg, #00f0ff, #00ff66);
+    border: none;
+    border-radius: 6px;
+    padding: 14px 40px;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(0, 255, 102, 0.5);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.action-btn:hover {
+    transform: scale(1.04);
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.8);
+}
+
+/* Scoreboard (TAB) */
+#scoreboard-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 8, 14, 0.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 15;
+    pointer-events: none;
+}
+
+.scoreboard-table {
+    width: 600px;
+    background: rgba(14, 22, 35, 0.95);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+}
+
+.score-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 14px;
+    font-size: 16px;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.score-header {
+    font-family: 'Orbitron', monospace;
+    color: #00f0ff;
+    font-size: 14px;
+}
+.player-highlight {
+    background: rgba(0, 240, 255, 0.15);
+    color: #00ff66;
+}

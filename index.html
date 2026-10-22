@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER-STRIKE: TRANSFORMERS 3D</title>
+    <link rel="stylesheet" href="main.css">
+    <!-- Local Three.js with CDN fallback -->
+    <script src="three.min.js"></script>
+    <script>
+        if (typeof THREE === 'undefined') {
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
+        }
+    </script>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Damage & Transform Vignettes -->
+        <div id="damage-indicator"></div>
+        <div id="transform-flash"></div>
+
+        <!-- Classic CS Crosshair -->
+        <div id="crosshair">
+            <div class="ch-line top"></div>
+            <div class="ch-line bottom"></div>
+            <div class="ch-line left"></div>
+            <div class="ch-line right"></div>
+            <div class="dot"></div>
+        </div>
+
+        <!-- Hitmarker -->
+        <div id="hitmarker"></div>
+
+        <!-- Sniper Scope Overlay -->
+        <div id="sniper-scope">
+            <div class="scope-line-h"></div>
+            <div class="scope-line-v"></div>
+            <div class="scope-ring"></div>
+        </div>
+
+        <!-- HUD LAYER -->
+        <div id="hud">
+            <!-- TOP BAR -->
+            <div class="hud-top">
+                <!-- Tactical Radar -->
+                <div class="radar-box">
+                    <canvas id="radar-canvas" width="160" height="160"></canvas>
+                    <div class="radar-label">RADAR // SCANNING</div>
+                </div>
+
+                <!-- Match Info -->
+                <div class="match-header">
+                    <div id="round-timer" class="timer-box">2:00</div>
+                    <div class="match-subinfo">
+                        <span id="hud-wave">WAVE 1 / 3</span>
+                        <span id="hud-remaining">ENEMIES: 7</span>
+                        <span id="hud-money">$800</span>
+                    </div>
+                </div>
+
+                <!-- Kill Feed -->
+                <div id="kill-feed"></div>
+            </div>
+
+            <!-- BOTTOM BAR -->
+            <div class="hud-bottom">
+                <!-- Health & Armor -->
+                <div class="cs-stats-card">
+                    <div class="stat-item">
+                        <div class="stat-header">❤️ ЗДОРОВЬЕ</div>
+                        <div id="hud-hp" class="stat-value">100</div>
+                        <div class="stat-bar-bg">
+                            <div id="hp-bar"></div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-header">🛡️ БРОНЯ</div>
+                        <div id="hud-armor" class="stat-value">100</div>
+                    </div>
+                </div>
+
+                <!-- Center Transformer Panel -->
+                <div class="transformer-panel">
+                    <div id="mode-badge" class="mode-robot">MODE: AUTOBOT CS-TROOPER</div>
+                    <div class="transform-hint">⚡ НАЖМИ [T] ДЛЯ ТРАНСФОРМАЦИИ! ⚡</div>
+                    <div id="nitro-container">
+                        <div class="nitro-label">NITRO TURBO BOOST [SHIFT]</div>
+                        <div class="nitro-bar-bg">
+                            <div id="nitro-bar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weapon & Ammo -->
+                <div class="cs-weapon-card">
+                    <div id="weapon-name">CYBER-RIFLE (M4-NEON)</div>
+                    <div id="hud-ammo">30 / 120</div>
+                    <div class="weapon-slots-hint">[1] Винтовка &bull; [2] AWP Прицел &bull; [3] Клинок</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- START / PAUSE MODAL -->
+        <div id="start-screen" class="modal-overlay">
+            <div class="modal-content">
+                <h1 class="title-glow">CYBER-STRIKE: TRANSFORMERS</h1>
+                <p class="subtitle">Тактический 3D шутер с боевой трансформацией</p>
+
+                <div class="controls-grid">
+                    <div class="ctrl-row"><span class="key-badge">W A S D</span> Движение / Вождение</div>
+                    <div class="ctrl-row"><span class="key-badge">T / E</span> <b>ТРАНСФОРМАЦИЯ В МАШИНУ / РОБОТА</b></div>
+                    <div class="ctrl-row"><span class="key-badge">ЛКМ</span> Огонь / Стрельба</div>
+                    <div class="ctrl-row"><span class="key-badge">ПКМ</span> Оптический зум (AWP Scope)</div>
+                    <div class="ctrl-row"><span class="key-badge">SHIFT</span> Спринт / Нитро Турбо в машине</div>
+                    <div class="ctrl-row"><span class="key-badge">ПРОБЕЛ</span> Прыжок робота</div>
+                    <div class="ctrl-row"><span class="key-badge">R</span> Перезарядка обоймы</div>
+                    <div class="ctrl-row"><span class="key-badge">1 2 3</span> Выбор оружия (M4 / AWP / Нож)</div>
+                    <div class="ctrl-row"><span class="key-badge">ТАРАН</span> На машине сбивайте врагов на скорости!</div>
+                    <div class="ctrl-row"><span class="key-badge">БОЧКИ</span> Стреляйте по красным бочкам для взрыва!</div>
+                </div>
+
+                <button id="btn-play" class="action-btn">🎮 НАЧАТЬ БОЙ (DEPLOY)</button>
+            </div>
+        </div>
+
+        <!-- GAME OVER MODAL -->
+        <div id="game-over-screen" class="modal-overlay" style="display: none;">
+            <div class="modal-content" style="border-color: #ff0055; box-shadow: 0 0 40px rgba(255, 0, 85, 0.4);">
+                <h1 class="title-glow" style="color: #ff3344; text-shadow: 0 0 15px #ff0055;">МИССИЯ ПРОВАЛЕНА</h1>
+                <p class="subtitle">Ваш автобот был уничтожен десептиконами</p>
+                <div style="font-size: 20px; margin-bottom: 24px; font-weight: 700;">
+                    Уничтожено врагов: <span id="final-kills" style="color: #00f0ff;">0</span><br>
+                    Итоговый счет: <span id="final-score" style="color: #ffcc00;">0</span>
+                </div>
+                <button id="btn-restart" class="action-btn" style="background: linear-gradient(90deg, #ff0055, #ffaa00);">🔄 ИГРАТЬ СНОВА</button>
+            </div>
+        </div>
+
+        <!-- VICTORY MODAL -->
+        <div id="victory-screen" class="modal-overlay" style="display: none;">
+            <div class="modal-content" style="border-color: #00ff66; box-shadow: 0 0 40px rgba(0, 255, 102, 0.4);">
+                <h1 class="title-glow" style="color: #00ff66; text-shadow: 0 0 15px #00ff66;">ПОБЕДА! СЕКТОР ЗАЧИЩЕН</h1>
+                <p class="subtitle">Все десептиконы ликвидированы! База спасена!</p>
+                <div style="font-size: 20px; margin-bottom: 24px; font-weight: 700;">
+                    Ликвидировано врагов: <span id="win-kills" style="color: #00f0ff;">0</span><br>
+                    Финальный счет: <span id="win-score" style="color: #ffcc00;">0</span>
+                </div>
+                <button id="btn-win-restart" class="action-btn">🏆 ИГРАТЬ ЗАНОВО</button>
+            </div>
+        </div>
+
+        <!-- SCOREBOARD OVERLAY (HOLD TAB) -->
+        <div id="scoreboard-overlay">
+            <div class="scoreboard-table">
+                <div class="score-row score-header">
+                    <span>КОМАНДА / ИГРОК</span>
+                    <span>ФРАГИ</span>
+                    <span>ОЧКИ</span>
+                    <span>ПИНГ</span>
+                </div>
+                <div class="score-row player-highlight">
+                    <span>🤖 ИГРОК (AUTOBOT COMMANDER)</span>
+                    <span id="score-player-kills">0</span>
+                    <span id="score-player-points">0</span>
+                    <span>5 ms</span>
+                </div>
+                <div class="score-row">
+                    <span>😈 DECEPTICON TITAN</span>
+                    <span>0</span>
+                    <span>0</span>
+                    <span>15 ms</span>
+                </div>
+                <div class="score-row">
+                    <span>😈 DECEPTICON SCOUT</span>
+                    <span>0</span>
+                    <span>0</span>
+                    <span>12 ms</span>
+                </div>
+                <div class="score-row">
+                    <span>😈 DECEPTICON TROOPER</span>
+                    <span>0</span>
+                    <span>0</span>
+                    <span>20 ms</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Scripts -->
+    <script src="audio.js"></script>
+    <script src="map.js"></script>
+    <script src="robot.js"></script>
+    <script src="enemy.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
